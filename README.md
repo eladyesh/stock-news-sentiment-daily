@@ -4,6 +4,8 @@ A free daily research pipeline that searches broadly for **US-listed stock oppor
 
 The collection universe is broad. The **15-candidate limit applies only to the final report**, including at most three unverified buzz leads. Quiet or poorly sourced days produce fewer candidates rather than filler.
 
+**Deployment:** the [daily Telegram workflow](https://github.com/eladyesh/stock-screener-daily/actions/workflows/daily_news_sentiment.yml) is installed in `stock-screener-daily`, using this repository's application and the existing Telegram secrets. It targets 08:00 Israel time, starting research at 07:30. The deployed application is pinned to commit `2146cdd8eb2903aaad3ffcba625ecf5c854a11f3`.
+
 ## What it does
 
 1. Refreshes the Nasdaq and other-US-exchange listing directories. Common stocks and ADRs are eligible; ETFs, test issues, preferred shares, warrants, units and similar instruments are excluded. This is exchange-listed discovery, not OTC coverage.

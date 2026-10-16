@@ -15,11 +15,11 @@ permissions:
   contents: read
 jobs:
   news:
-    uses: eladyesh/stock-news-sentiment-daily/.github/workflows/news.yml@main
+    uses: eladyesh/stock-news-sentiment-daily/.github/workflows/news.yml@2146cdd8eb2903aaad3ffcba625ecf5c854a11f3
     with:
       smoke: false
       send_telegram: ${{ github.event_name == 'schedule' || inputs.send_telegram }}
-      code_ref: main
+      code_ref: 2146cdd8eb2903aaad3ffcba625ecf5c854a11f3
     secrets:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
