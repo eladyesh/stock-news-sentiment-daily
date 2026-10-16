@@ -1,0 +1,176 @@
+{
+  "language": "en",
+  "timezone": "Asia/Jerusalem",
+  "delivery_time": "08:00",
+  "window_hours": 24,
+  "context_days": 7,
+  "max_report_stocks": 15,
+  "max_buzz_stocks": 3,
+  "workers": 5,
+  "max_scored_articles": 10000,
+  "followup_stocks": 30,
+  "page_read_limit": 100,
+  "minimum_research_score": 35,
+  "model": "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis",
+  "model_revision": "ae0eab9ad336d7d548e0efe394b07c04bcaf6e91",
+  "google_news_queries": [
+    "(NYSE OR NASDAQ) (announces OR guidance OR earnings)",
+    "stocks (raised guidance OR profit warning OR revenue forecast)",
+    "(NYSE OR NASDAQ) (contract OR partnership OR backlog)",
+    "(NYSE OR NASDAQ) (FDA OR trial OR approval)",
+    "(NYSE OR NASDAQ) (acquisition OR merger OR takeover)",
+    "(NYSE OR NASDAQ) (investigation OR lawsuit OR recall)",
+    "(NYSE OR NASDAQ) (offering OR dilution OR buyback)",
+    "(NYSE OR NASDAQ) (restructuring OR turnaround OR bankruptcy)",
+    "semiconductor stocks earnings demand supply",
+    "software cloud cybersecurity stocks contract revenue",
+    "biotechnology pharmaceutical stocks trial approval",
+    "energy oil gas uranium stocks contracts",
+    "bank insurance financial stocks earnings",
+    "industrial defense aerospace stocks orders",
+    "retail consumer travel stocks sales outlook",
+    "utilities power grid data center stocks demand",
+    "mining metals materials stocks production",
+    "real estate REIT stocks refinancing occupancy",
+    "small cap stocks catalyst earnings",
+    "US listed ADR stocks earnings outlook",
+    "site:businesswire.com (NYSE OR NASDAQ)",
+    "site:globenewswire.com (NYSE OR NASDAQ)",
+    "site:prnewswire.com (NYSE OR NASDAQ)",
+    "site:sec.gov (8-K OR 6-K)"
+  ],
+  "gdelt_queries": [
+    "(NYSE OR NASDAQ) (earnings OR guidance)",
+    "(NYSE OR NASDAQ) (contract OR partnership OR orders)",
+    "(NYSE OR NASDAQ) (FDA OR trial OR approval)",
+    "(NYSE OR NASDAQ) (merger OR takeover OR acquisition)",
+    "(NYSE OR NASDAQ) (investigation OR lawsuit OR recall)",
+    "(NYSE OR NASDAQ) (offering OR buyback OR dividend)",
+    "(semiconductor OR software OR cybersecurity) (shares OR stock)",
+    "(energy OR uranium OR mining) (shares OR stock)",
+    "(bank OR insurance OR fintech) (shares OR stock)",
+    "(defense OR aerospace OR industrial) (shares OR stock)",
+    "(retail OR travel OR consumer) (shares OR stock)",
+    "(utilities OR infrastructure OR REIT) (shares OR stock)"
+  ],
+  "reddit_communities": [
+    "stocks",
+    "investing",
+    "wallstreetbets",
+    "ValueInvesting",
+    "SecurityAnalysis",
+    "StockMarket",
+    "smallstreetbets"
+  ],
+  "bluesky_queries": [
+    "stocks",
+    "earnings",
+    "NASDAQ",
+    "NYSE"
+  ],
+  "feeds": [
+    {
+      "name": "cnbc:markets",
+      "url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+      "family": "news",
+      "limit": 100
+    },
+    {
+      "name": "cnbc:earnings",
+      "url": "https://www.cnbc.com/id/15839135/device/rss/rss.html",
+      "family": "news",
+      "limit": 100
+    },
+    {
+      "name": "yahoo:finance",
+      "url": "https://finance.yahoo.com/news/rssindex",
+      "family": "news",
+      "limit": 100
+    },
+    {
+      "name": "marketwatch:top",
+      "url": "https://feeds.content.dowjones.io/public/rss/mw_topstories",
+      "family": "news",
+      "limit": 100
+    },
+    {
+      "name": "globenewswire:news-about-public-companies",
+      "url": "https://www.globenewswire.com/RssFeed/orgclass/1/feedTitle/GlobeNewswire%20-%20News%20about%20Public%20Companies",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:earnings-releases-and-operating-results",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/13-Earnings%20Releases%20and%20Operating%20Results/feedTitle/GlobeNewswire%20-%20Earnings%20Releases%20and%20Operating%20Results",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:mergers-and-acquisitions",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/27-Mergers%20and%20Acquisitions/feedTitle/GlobeNewswire%20-%20Mergers%20and%20Acquisitions",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:business-contracts",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/7-Business%20Contracts/feedTitle/GlobeNewswire%20-%20Business%20Contracts",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:bankruptcy",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/5-Bankruptcy/feedTitle/GlobeNewswire%20-%20Bankruptcy",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:licensing-agreements",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/25-Licensing%20Agreements/feedTitle/GlobeNewswire%20-%20Licensing%20Agreements",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:partnerships",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/29-Partnerships/feedTitle/GlobeNewswire%20-%20Partnerships",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:regulatory-information",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/73-Regulatory%20Information/feedTitle/GlobeNewswire%20-%20Regulatory%20Information",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:stock-market-news",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/39-Stock%20Market%20News/feedTitle/GlobeNewswire%20-%20Stock%20Market%20News",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:clinical-study",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/90-Clinical%20Study/feedTitle/GlobeNewswire%20-%20Clinical%20Study",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:products",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/32-Product%202f%20Services%20Announcement/feedTitle/GlobeNewswire%20-%20Product%20%2C%20Services%20Announcement",
+      "family": "news",
+      "limit": 20
+    },
+    {
+      "name": "globenewswire:restructuring",
+      "url": "https://www.globenewswire.com/RssFeed/subjectcode/37-Restructuring%202f%20Recapitalization/feedTitle/GlobeNewswire%20-%20Restructuring%20%2C%20Recapitalization",
+      "family": "news",
+      "limit": 20
+    }
+  ],
+  "coverage_notes": [
+    "The configured broad queries can return thousands of raw records, but realized volume is measured, never promised.",
+    "News aggregators cover many publishers; their top results are a bounded, ranked sample.",
+    "X, Stocktwits, private groups, Discord and Telegram channels are not directly collected without an authorized accessible feed. News reports about them are second-hand leads.",
+    "Reddit and Bluesky are accessible samples when their endpoints permit access, not whole-platform sentiment.",
+    "GDELT first-seen timestamps are discovery times, not verified original publication or event times."
+  ]
+}
