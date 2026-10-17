@@ -25,6 +25,7 @@ The sender requires the report's local date to match today and its generation ti
 | Symptom | Where to look | Recovery |
 | --- | --- | --- |
 | Missing Telegram secret | Verification-step error before model installation | Add both secrets in `stock-news-sentiment-daily`; secrets in the former caller are not inherited |
+| Bot ID used as the destination | Verification-step error | Press Start in your bot, then use `message.chat.id` from `getUpdates`; `getMe` returns the bot's own ID |
 | Private destination not verified | Verification-step error | Check the existing bot/chat configuration and that the bot is started |
 | No current source records / no entities resolved | Research-step error and source availability | Inspect upstream feeds/listing directories; rerun after fixing access |
 | Some source families unavailable | `report.json` coverage entries | Keep the gap visible; add a legitimate accessible public alternative |

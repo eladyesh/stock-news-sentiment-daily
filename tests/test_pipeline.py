@@ -1,18 +1,20 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from io import BytesIO
 import json
 from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 from news_scout.analysis import comparable_baseline, deduplicate, headline_key, rank, story_groups
 from news_scout.core import Article, UTC, canonical_url, iso, timestamp
 from news_scout.http import public_url
 from news_scout.report import render
 from news_scout.sources import Collector, parse_bluesky, parse_feed, parse_gdelt
-from news_scout.telegram import deliver, split_messages, units
+from news_scout.telegram import Telegram, deliver, split_messages, units
 from news_scout.universe import Resolver, parse_directory
 
 NOW = datetime(2026, 10, 16, 5, 0, tzinfo=UTC)
@@ -199,6 +201,37 @@ class EntityAndEvidenceTests(unittest.TestCase):
         for url in ["file:///etc/passwd", "http://127.0.0.1/x", "https://localhost/x", "https://169.254.169.254/latest", "https://user:pass@example.com"]:
             with self.subTest(url=url), self.assertRaises(ValueError):
                 public_url(url)
+
+
+class TelegramConfigurationTests(unittest.TestCase):
+    def test_bot_own_id_is_rejected_without_sending(self):
+        bot = Telegram("999:fixture-token", "999")
+        with patch.object(bot, "call", return_value={"id":999, "is_bot":True}) as call:
+            with self.assertRaisesRegex(ValueError, "getMe returns the bot's ID"):
+                bot.verify()
+        call.assert_called_once_with("getMe", {})
+
+    def test_private_recipient_is_verified_without_sending(self):
+        bot = Telegram("999:fixture-token", "12345")
+        with patch.object(bot, "call", side_effect=[{"id":999, "is_bot":True}, {"id":12345, "type":"private"}]) as call:
+            bot.verify()
+        self.assertEqual([x.args[0] for x in call.call_args_list], ["getMe", "getChat"])
+
+    def test_rejection_guidance_never_echoes_error_body_or_credentials(self):
+        bot = Telegram("999:fixture-token", "12345")
+        for body, expected in [
+            (json.dumps({"ok":False, "description":"Forbidden: bot was blocked by the user"}).encode(), "Unblock the bot"),
+            (json.dumps({"ok":False, "description":f"secret {bot.token} {bot.chat_id}"}).encode(), "credentials omitted"),
+            (b"not json", "credentials omitted"),
+            (json.dumps({"description":[]}).encode(), "credentials omitted"),
+        ]:
+            error = HTTPError("redacted", 403, "Forbidden", {}, BytesIO(body))
+            with self.subTest(body=body), patch("news_scout.telegram.build_opener") as opener:
+                opener.return_value.open.side_effect = error
+                with self.assertRaisesRegex(RuntimeError, expected) as raised:
+                    bot.call("sendMessage", {"chat_id":bot.chat_id, "text":"fixture"})
+                self.assertNotIn(bot.token, str(raised.exception))
+                self.assertNotIn(bot.chat_id, str(raised.exception))
 
 
 class DeliveryTests(unittest.TestCase):

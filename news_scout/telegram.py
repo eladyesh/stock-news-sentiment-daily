@@ -55,6 +55,22 @@ class NoRedirect(HTTPRedirectHandler):
         raise RuntimeError("Telegram redirects are not permitted")
 
 
+def rejection_hint(data: object) -> str:
+    # Only emit fixed guidance; Telegram error bodies can contain private inputs.
+    if not isinstance(data, dict):
+        return "credentials omitted"
+    hints = {
+        "Forbidden: bot was blocked by the user": "Unblock the bot and press Start in your private chat",
+        "Forbidden: bot can't initiate conversation with a user": "Open your bot and press Start before retrying",
+        "Forbidden: bot can't send messages to bots": "TELEGRAM_CHAT_ID must be your message.chat.id from getUpdates, not a bot ID",
+        "Forbidden: user is deactivated": "TELEGRAM_CHAT_ID belongs to a deactivated account",
+        "Bad Request: chat not found": "Start the bot, then set TELEGRAM_CHAT_ID to your message.chat.id from getUpdates",
+        "Unauthorized": "Check TELEGRAM_BOT_TOKEN in this repository's Actions secrets",
+    }
+    description = data.get("description")
+    return hints.get(description, "credentials omitted") if isinstance(description, str) else "credentials omitted"
+
+
 class Telegram:
     def __init__(self, token: str, chat_id: str):
         if not re.fullmatch(r"\d+:[A-Za-z0-9_-]+", token or ""):
@@ -71,15 +87,22 @@ class Telegram:
             with build_opener(NoRedirect()).open(request, timeout=30) as response:
                 data = json.load(response)
         except HTTPError as exc:
-            raise RuntimeError(f"Telegram rejected {method} (HTTP {exc.code}); credentials omitted") from None
+            try:
+                error = json.loads(exc.read(4096))
+            except Exception:
+                error = None
+            raise RuntimeError(f"Telegram rejected {method} (HTTP {exc.code}); {rejection_hint(error)}") from None
         except Exception:
             # A timeout may follow acceptance by Telegram. Never blindly retry a send.
             raise RuntimeError(f"Telegram {method} outcome uncertain; check the chat before retrying") from None
         if not data.get("ok"):
-            raise RuntimeError(f"Telegram rejected {method}; credentials omitted")
+            raise RuntimeError(f"Telegram rejected {method}; {rejection_hint(data)}")
         return data["result"]
 
     def verify(self):
+        bot = self.call("getMe", {})
+        if str(bot.get("id")) == self.chat_id:
+            raise ValueError("TELEGRAM_CHAT_ID points to this bot. Start the bot, then use your message.chat.id from getUpdates; getMe returns the bot's ID.")
         data = self.call("getChat", {"chat_id": self.chat_id})
         if data.get("type") != "private" or str(data.get("id")) != self.chat_id:
             raise ValueError("Configured destination did not verify as the expected private chat")
