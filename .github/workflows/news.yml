@@ -67,6 +67,41 @@ jobs:
           path: state/
           key: news-sentiment-history-v1-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: news-sentiment-history-v1-
+      - name: Recover the reviewed first-send rejection from run 39030650204
+        if: >-
+          github.event_name == 'workflow_dispatch' &&
+          env.SEND_TELEGRAM == 'true' && env.SMOKE != 'true' &&
+          steps.history.outputs.cache-matched-key == 'news-sentiment-history-v1-39030650204-1'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from news_scout.core import digest
+          from news_scout.report import render
+          from news_scout.telegram import atomic_json, split_messages
+          
+          state_path = Path("state/state.json")
+          state = json.loads(state_path.read_text())
+          report = json.loads(Path("state/pending_report.json").read_text())
+          delivery = state.get("delivery", {}).get("2026-10-17", {})
+          expected = digest(json.dumps(split_messages(render(report)), ensure_ascii=False))
+          if (report.get("date") != "2026-10-17"
+                  or report.get("smoke") or report.get("synthetic")
+                  or delivery.get("cursor") != 0
+                  or delivery.get("uncertain") is not True
+                  or delivery.get("complete")
+                  or delivery.get("last_message_id") is not None
+                  or delivery.get("fingerprint") != expected):
+              raise RuntimeError("Recovery refused: journal does not match the reviewed first-send rejection")
+          # Run 39030650204/1 received HTTP 403 on its first sendMessage.
+          # Run 39031287088 confirmed that the old destination was the bot itself.
+          # No report message was accepted. Preserve the exact report and cursor.
+          delivery["uncertain"] = False
+          delivery["reviewed_rejection"] = {"run_id": 39030650204, "attempt": 1, "http_status": 403}
+          atomic_json(state_path, state)
+          print("Recovered the reviewed HTTP 403 rejection; no message sent by recovery.")
+          PY
       - name: Discover, investigate and rank stock opportunities
         id: research
         shell: bash
