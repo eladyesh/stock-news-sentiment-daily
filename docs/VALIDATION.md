@@ -1,5 +1,7 @@
 # Validation record
 
+**Deployment update (2026-10-17):** scheduling has moved into this repository's `.github/workflows/news.yml`. The external caller described below is historical and has been removed. See [operations](OPERATIONS.md) for the current setup, including the two Telegram secrets required here. The following records document the original 2026-10-16 validation, not a successful delivery after migration.
+
 Validation date: 2026-10-16. Local validation sent no Telegram messages. The first hosted production run subsequently delivered the report, as recorded below.
 
 ## Offline checks

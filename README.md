@@ -4,7 +4,7 @@ A free daily research pipeline that searches broadly for **US-listed stock oppor
 
 The collection universe is broad. The **15-candidate limit applies only to the final report**, including at most three unverified buzz leads. Quiet or poorly sourced days produce fewer candidates rather than filler.
 
-**Deployment:** the [daily Telegram workflow](https://github.com/eladyesh/stock-screener-daily/actions/workflows/daily_news_sentiment.yml) is installed in `stock-screener-daily`, using this repository's application and the existing Telegram secrets. It targets 08:00 Israel time, starting research at 07:30. The deployed application is pinned to commit `2146cdd8eb2903aaad3ffcba625ecf5c854a11f3`.
+**Deployment:** the [daily Telegram workflow](https://github.com/eladyesh/stock-news-sentiment-daily/actions/workflows/news.yml) runs directly in this repository. Its cron starts research at 07:30 Israel time and targets delivery at 08:00. Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` as Actions secrets in **this repository** to enable delivery.
 
 ## What it does
 
@@ -22,17 +22,17 @@ The local classifier scores financial language. Business explanations use transp
 
 The intended delivery time is **08:00 Asia/Jerusalem**, including daylight-saving changes. The scheduled workflow starts at **07:30**, collects the preceding 24 hours as of scan start, then holds a completed report until 08:00. If GitHub starts late or research overruns, delivery is late. GitHub Actions does not guarantee exact-time execution.
 
-The default deployment uses the existing `eladyesh/stock-screener-daily` repository as the scheduled caller:
+This repository owns the application, schedule, Telegram credentials, report artifacts and delivery history:
 
-- This repository owns the application and reusable workflow: `.github/workflows/news.yml`.
-- The existing repository owns the tiny caller: `.github/workflows/daily_news_sentiment.yml`.
-- The caller explicitly passes its existing `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` secrets. Their values never need to be extracted or copied.
-- The existing stock-screening workflow continues independently.
-- Only one scheduler should be active. This repository's own scheduled job stays disabled unless `NEWS_STANDALONE_ENABLED=true` is set as a repository variable.
+- `.github/workflows/news.yml` uses `cron: '30 7 * * *'` with `timezone: Asia/Jerusalem`.
+- Scheduled runs check out the triggering commit on this repository's default branch. Application updates take effect on the next run without updating another repository.
+- Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` under this repository's **Settings → Secrets and variables → Actions**. Secrets in `stock-screener-daily` are not available here automatically. GitHub does not reveal their stored values; enter the original values directly in GitHub.
+- Scheduling is enabled directly; `NEWS_STANDALONE_ENABLED` is no longer required.
+- The external `stock-screener-daily/.github/workflows/daily_news_sentiment.yml` caller is removed. Its stock-screening workflow continues independently.
 
-After creating this public repository, add [the caller template](examples/telegram-caller.yml) to the existing repository. Pin both its `uses` reference and `code_ref` to the reviewed commit SHA. Updates then require changing both pins.
+For a no-send hosted check, open **Actions → Daily News Sentiment Opportunities → Run workflow**, keep `smoke=true` and `send_telegram=false`. For a full scan without sending, set both to `false`. For manual delivery after configuring the secrets, use `smoke=false` and `send_telegram=true`.
 
-For a standalone deployment instead, set the same two secrets in this repository, enable `NEWS_STANDALONE_ENABLED=true`, and disable the external caller. Never enable both routes for the same destination: their histories and delivery journals are separate.
+The old repository's Actions cache does not transfer automatically. The first run here starts a fresh observation history and delivery journal. Avoid manually sending another report on a day already delivered by the old caller; cross-repository deduplication is unavailable.
 
 GitHub can disable scheduled workflows in inactive public repositories after 60 days. Check the Actions page periodically and re-enable the schedule if GitHub disables it.
 
@@ -97,7 +97,7 @@ See [source documentation](docs/SOURCES.md), [operations](docs/OPERATIONS.md), a
 
 ## Cost and credentials
 
-No paid news service, paid AI API, GitHub Models service, or paid runner is used. Workflows refuse execution for private caller repositories and use standard public-repository runners. Artifacts expire after seven days; history caches are small and disposable. Keep the repository public for this free deployment.
+No paid news service, paid AI API, GitHub Models service, or paid runner is used. The news workflow runs only in this public repository and uses a standard runner. Artifacts expire after seven days; history caches are small and disposable. Keep the repository public for this free deployment.
 
 Telegram credentials exist only in the verification and delivery steps. Collection and model inference receive neither secret. Logs omit bot tokens, chat IDs and API response bodies. The bot only sends to the configured, verified private chat.
 

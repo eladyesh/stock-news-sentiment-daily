@@ -1,18 +1,20 @@
 # Operations
 
-## Deploy with the existing Telegram credentials
+## Deploy in this repository
 
-1. Create public repository `eladyesh/stock-news-sentiment-daily` and push this project to `main`.
-2. Wait for the offline Tests workflow to pass. Manually dispatch **Daily News Sentiment Opportunities** with `smoke=true` and `send_telegram=false` to check hosted-runner access.
-3. Copy `examples/telegram-caller.yml` into `eladyesh/stock-screener-daily/.github/workflows/daily_news_sentiment.yml`. Pin both `uses` and `code_ref` to the same reviewed commit in the new repository.
-4. Manually dispatch **Daily News Opportunities to Telegram** in the existing repository. It verifies the private destination, performs a full scan and delivers the report immediately. Scheduled runs wait for 08:00 Israel time.
-5. Check the delivery step and the private chat. Check the report artifact's coverage ledger as well: workflow success alone does not mean every source was accessible.
+1. Keep `eladyesh/stock-news-sentiment-daily` public and push this project to its default branch, `main`.
+2. In **this repository's Settings → Secrets and variables → Actions**, add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` with the existing bot and private-chat values. GitHub cannot reveal the values stored in another repository. Enter them directly in GitHub; never put credentials in code, logs, issues, or documentation.
+3. Wait for the offline Tests workflow to pass. Manually dispatch **Daily News Sentiment Opportunities** with `smoke=true` and `send_telegram=false` to check hosted-runner access without sending.
+4. For a full no-send check, set both inputs to `false`. For immediate delivery, set `smoke=false` and `send_telegram=true`. The workflow verifies the configured private destination before downloading the model or collecting news.
+5. The native cron starts daily at 07:30 in `Asia/Jerusalem` and holds a completed scheduled report until 08:00. No `NEWS_STANDALONE_ENABLED` variable is needed. Check the delivery step, private chat and report coverage ledger; workflow success alone does not mean every source was accessible.
 
-The two existing secrets stay in `stock-screener-daily`. The caller passes only `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`. The new repository has no need to know their values. Do not copy credentials into a workflow, issue, README or commit.
+The former `.github/workflows/daily_news_sentiment.yml` caller in `stock-screener-daily` is removed. News runs no longer depend on that repository. Leave its Telegram secrets in place for its separate stock-screening workflow.
+
+The old caller's history and delivery journal are not transferred. The first local run starts a fresh baseline, so do not manually resend on a day already delivered by the old caller.
 
 ## Daily state
 
-`state/state.json` contains seven days of comparable aggregate observations, seen-headline hashes and the delivery cursor. `state/pending_report.json` is the exact day's report. Both are ignored by git and restored from/saved to an Actions cache scoped to the caller repository.
+`state/state.json` contains seven days of comparable aggregate observations, seen-headline hashes and the delivery cursor. `state/pending_report.json` is the exact day's report. Both are ignored by git and restored from/saved to an Actions cache scoped to `stock-news-sentiment-daily`.
 
 The cache key changes for each run and attempt, restoring the most recent prefix match. Concurrent news runs are serialized. Cache misses deliberately reset history; the report must not claim acceleration until a comparable baseline exists again.
 
@@ -22,7 +24,7 @@ The sender requires the report's local date to match today and its generation ti
 
 | Symptom | Where to look | Recovery |
 | --- | --- | --- |
-| Missing Telegram secret | Verification-step error | Check secret names in the caller repository; do not print values |
+| Missing Telegram secret | Verification-step error before model installation | Add both secrets in `stock-news-sentiment-daily`; secrets in the former caller are not inherited |
 | Private destination not verified | Verification-step error | Check the existing bot/chat configuration and that the bot is started |
 | No current source records / no entities resolved | Research-step error and source availability | Inspect upstream feeds/listing directories; rerun after fixing access |
 | Some source families unavailable | `report.json` coverage entries | Keep the gap visible; add a legitimate accessible public alternative |
@@ -37,13 +39,12 @@ If the cache was evicted or lost before save, local receipts cannot guarantee de
 
 ## Workflow controls
 
-- **New repository / manual smoke:** limited access check, no Telegram.
-- **New repository / manual full with send disabled:** full report artifact, no observation-history mutation.
-- **Existing repository / manual caller:** full report; `send_telegram=false` is an explicit dry run.
-- **Existing repository / scheduled caller:** starts 07:30 Israel time, sends at/after 08:00.
-- **Standalone opt-in:** only when the caller is disabled and the two secrets exist in the new repository.
+- **Manual smoke:** `smoke=true`, `send_telegram=false`; limited access check, no Telegram.
+- **Manual full without delivery:** `smoke=false`, `send_telegram=false`; full report artifact, no observation-history mutation.
+- **Manual full with delivery:** `smoke=false`, `send_telegram=true`; verifies the destination, prepares a full report and sends immediately.
+- **Scheduled:** full scan beginning at 07:30 Israel time, delivery at/after 08:00, using this repository's secrets and history.
 
-After updating application code, run offline tests and a no-send live check, then update both pinned references in the caller. Do not change only one pin: the reusable workflow and checked-out application must come from the same reviewed commit.
+All controls are in this repository's **Daily News Sentiment Opportunities** workflow. The manual defaults do not send messages, and smoke runs never send even if delivery is selected. After updating application code, run offline tests and a no-send live check. The schedule executes the latest default-branch commit; no external pins or caller updates are needed.
 
 ## Storage and costs
 
