@@ -4,7 +4,7 @@ A free daily research pipeline that searches broadly for **US-listed stock oppor
 
 The collection universe is broad. The **15-candidate limit applies only to the final report**, including at most three unverified buzz leads. Quiet or poorly sourced days produce fewer candidates rather than filler.
 
-**Deployment:** the [daily Telegram workflow](https://github.com/eladyesh/stock-news-sentiment-daily/actions/workflows/news.yml) runs directly in this repository. Its cron starts research at 07:30 Israel time and targets delivery at 08:00. Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` as Actions secrets in **this repository** to enable delivery.
+**Deployment:** the [daily Telegram workflow](https://github.com/eladyesh/stock-news-sentiment-daily/actions/workflows/news.yml) runs directly in this repository. Its cron starts research at 07:46 Israel time and targets delivery at 08:00. Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` as Actions secrets in **this repository** to enable delivery.
 
 ## What it does
 
@@ -20,11 +20,11 @@ The local classifier scores financial language. Business explanations use transp
 
 ## Daily delivery
 
-The intended delivery time is **08:00 Asia/Jerusalem**, including daylight-saving changes. The scheduled workflow starts at **07:30**, collects the preceding 24 hours as of scan start, then holds a completed report until 08:00. If GitHub starts late or research overruns, delivery is late. GitHub Actions does not guarantee exact-time execution.
+The intended delivery time is **08:00 Asia/Jerusalem**, including daylight-saving changes. The scheduled workflow starts at **07:46**, collects the preceding 24 hours as of scan start, then holds a completed report until 08:00. If GitHub starts late or research overruns, delivery is late. GitHub Actions does not guarantee exact-time execution.
 
 This repository owns the application, schedule, Telegram credentials, report artifacts and delivery history:
 
-- `.github/workflows/news.yml` uses `cron: '30 7 * * *'` with `timezone: Asia/Jerusalem`.
+- `.github/workflows/news.yml` uses `cron: '46 7 * * *'` with `timezone: Asia/Jerusalem`.
 - Scheduled runs check out the triggering commit on this repository's default branch. Application updates take effect on the next run without updating another repository.
 - Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` under this repository's **Settings → Secrets and variables → Actions**. Secrets in `stock-screener-daily` are not available here automatically. GitHub does not reveal their stored values; enter the original values directly in GitHub.
 - Scheduling is enabled directly; `NEWS_STANDALONE_ENABLED` is no longer required.

@@ -3,7 +3,7 @@ name: Daily News Sentiment Opportunities
 on:
   # Run in this repository every day; timezone follows Israel's DST changes.
   schedule:
-    - cron: '30 7 * * *'
+    - cron: '46 7 * * *'
       timezone: Asia/Jerusalem
   workflow_dispatch:
     inputs:
